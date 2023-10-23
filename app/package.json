@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "build": "tsc",
+    "main": "node ./lib/main.js"
+  },
+  "devDependencies": {
+    "@types/node": "18.14.6",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.5.1",
+    "dotenv": "^16.3.1",
+    "twilio": "^4.19.0"
+  }
+}
