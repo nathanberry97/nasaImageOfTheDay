@@ -8,39 +8,48 @@ import { apodData } from '../src/types';
 const mockRequest = jest.spyOn(axios, 'request').mockImplementation(jest.fn());
 
 describe('Test NSAS APOD app', () => {
-  const OLD_ENV = process.env;
 
-  beforeEach(() => {
-    jest.resetModules();
-    mockRequest.mockClear()
-    process.env = { ...OLD_ENV };
-  });
+    beforeEach(() => {
+        mockRequest.mockClear()
+    });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+    test('Test format data method', () => {
+        const event: apodData = {
+          date: '10-01-97',
+          explanation: 'This is space',
+          hdurl: 'http://space',
+          media_type: 'image',
+          service_version: '2',
+          title: 'space',
+          url: 'https://space'
+        }
+        const response = formatData(event);
+        const expected: string = `NSAS APOD\n\n${event.date}\n\n${event.title}\n\n${event.explanation}\n\n${event.url}`;
 
-  test('Test format data method', () => {
-      const event: apodData = {
-        date: '10-01-97',
-        explanation: 'This is space',
-        hdurl: 'http://space',
-        media_type: 'image',
-        service_version: '2',
-        title: 'space',
-        url: 'https://space'
-      }
-      const response = formatData(event);
-      const expected: string = `NSAS APOD\n\n${event.date}\n\n${event.title}\n\n${event.explanation}\n\n${event.url}`;
+        expect(response).toBe(expected);
+    });
 
-      expect(response).toBe(expected);
-  });
+    test('Test get data returns apodData', async () => {
+        process.env.NSAS_API_KEY = '1234567890';
 
-  test('Test get data returns apodData', async () => {
-    process.env.NSAS_API_KEY = '1234567890';
+        mockRequest.mockResolvedValue({
+            data: {
+                date: '10-01-97',
+                explanation: 'This is space',
+                hdurl: 'http://space',
+                media_type: 'image',
+                service_version: '2',
+                title: 'space',
+                url: 'https://space'
+            },
+            context: {
+                test: 'this is a test'
+            }
+        });
 
-    mockRequest.mockResolvedValue({
-        data: {
+        const response = await getData();
+
+        const expected: apodData = {
             date: '10-01-97',
             explanation: 'This is space',
             hdurl: 'http://space',
@@ -48,47 +57,30 @@ describe('Test NSAS APOD app', () => {
             service_version: '2',
             title: 'space',
             url: 'https://space'
-        },
-        context: {
-            test: 'this is a test'
+          }
+
+        expect(response).toStrictEqual(expected);
+    });
+
+    test('Test get data returns error when data is missing from header', async () => {
+        process.env.NSAS_API_KEY = '1234567890';
+        mockRequest.mockResolvedValue({ context: { test: 'this is a test' } });
+
+        try {
+            await getData();
+        } catch (err) {
+            expect(err).toStrictEqual('Not okay');
         }
     });
 
-    const response = await getData();
+    test('Test get data returns error when data does not match apodData', async () => {
+        process.env.NSAS_API_KEY = '1234567890';
+        mockRequest.mockResolvedValue({ data: { test: 'this is a test' } });
 
-    const expected: apodData = {
-        date: '10-01-97',
-        explanation: 'This is space',
-        hdurl: 'http://space',
-        media_type: 'image',
-        service_version: '2',
-        title: 'space',
-        url: 'https://space'
-      }
-
-    expect(response).toStrictEqual(expected);
-  });
-
-  test('Test get data returns error when data is missing from header', async () => {
-    process.env.NSAS_API_KEY = '1234567890';
-    mockRequest.mockResolvedValue({ context: { test: 'this is a test' } });
-
-    try {
-        await getData();
-    } catch (err) {
-        expect(err).toStrictEqual('Not okay');
-    }
-  });
-
-  test('Test get data returns error when data does not match apodData', async () => {
-    process.env.NSAS_API_KEY = '1234567890';
-    mockRequest.mockResolvedValue({ data: { test: 'this is a test' } });
-
-    try {
-        await getData();
-    } catch (err) {
-        expect(err).toStrictEqual('Not okay');
-    }
-  });
-
+        try {
+            await getData();
+        } catch (err) {
+            expect(err).toStrictEqual('Not okay');
+        }
+    });
 })
