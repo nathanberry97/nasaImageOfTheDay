@@ -8,9 +8,16 @@ import { apodData } from '../src/types';
 const mockRequest = jest.spyOn(axios, 'request').mockImplementation(jest.fn());
 
 describe('Test NSAS APOD app', () => {
+    const env = process.env;
 
     beforeEach(() => {
-        mockRequest.mockClear()
+        jest.resetModules();
+        process.env = { ...env };
+        mockRequest.mockClear();
+    });
+
+    afterEach(() => {
+        process.env = env;
     });
 
     test('Test format data method', () => {
