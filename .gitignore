@@ -1,6 +1,9 @@
-.env
+# Ignore node files
 lib/
 node_modules/
 package-lock.json
+.env
+
+# Ignore terraform file
 .terraform*
 terraform.tfstate*
