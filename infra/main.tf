@@ -21,7 +21,7 @@ module "ecs_cluster" {
 }
 
 module "event_bridge" {
-  source = "./modules/event_bridge"
+  source                  = "./modules/event_bridge"
   ECS_CLUSTER_ARN         = module.ecs_cluster.cluser_arn
   ECS_IAM_EXECUTION_ARN   = module.iam_roles.ecs_role_arn
   ECS_TASK_DEFINITION_ARN = module.ecs_cluster.task_definition_arn
